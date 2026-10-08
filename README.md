@@ -2,6 +2,16 @@
 
 **Adaptive Rank-One Array Lattice Engine for E₈ Decoding on Chiral Transport Hardware**
 
+
+---
+
+<img width="380" height="526" alt="image" src="https://github.com/user-attachments/assets/5918b7da-4cc2-4638-b1a1-9bb21aedf5fc" />
+
+
+
+
+---
+
 ARALE is a cryogenic closest-point decoder for the E₈ lattice. It recovers an E₈ point from an 8-dimensional observation that has passed through an unknown, slowly drifting linear channel, and it keeps its channel estimate current at the symbol rate without a training sequence. It is specified for a 4 K cryo-CMOS implementation (with an SFQ speed option and an optional topological-semimetal interconnect upgrade) and is accompanied by a self-contained Python model, `arale_model.py`, that produces every simulated number in this README.
 
 This file is complete in itself. It states the problem, the mathematics, the architecture, the numerical results with the exact commands that reproduce them, the physical technology mapping with its evidence levels, the target applications, the limits of the claims, a validation roadmap, and the references.
