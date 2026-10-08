@@ -15,6 +15,7 @@ Usage:
     python3 arale_model.py ser            # SER vs SNR, with and without mismatch (20k trials/cell)
     python3 arale_model.py ser-precise    # the 8 and 9 dB rows at 100k trials with standard errors
     python3 arale_model.py track          # tracker floor, drift recovery, capture range
+    python3 arale_model.py track-snr      # tracker floor versus SNR at mu = 1/16
     python3 arale_model.py sm             # Sherman-Morrison vs QR error growth in 16/20-bit arithmetic
     python3 arale_model.py cordic         # CORDIC rotation error
     python3 arale_model.py budget         # operation counts, latency, energy, area
@@ -182,6 +183,13 @@ def run_track():
         print(f"{name:10s}: initial={mis[0]:.3f} symbols to <0.10: {t10:4d} SER first 200={errs[:200].mean():.3f}")
 
 
+def run_track_snr():
+    print("-- tracker floor versus SNR (mu = 1/16, kappa 2, D = 65; mean of symbols 1500-3000)")
+    for s in (8, 10, 12, 14):
+        mis, errs = track(1/16, snr_db=s)
+        print(f"SNR {s:2d} dB: floor={np.mean(mis[1500:]):.3f}  decision errors={int(errs.sum())}")
+
+
 # --------------------------------------------------------------------------- SM vs QR
 
 def run_sm(updates=300, frac_bits=16):
@@ -260,7 +268,7 @@ def run_budget():
 
 if __name__ == "__main__":
     what = sys.argv[1] if len(sys.argv) > 1 else "all"
-    steps = {"decoder": check_decoder, "ser": run_ser, "ser-precise": run_ser_precise, "track": run_track,
+    steps = {"decoder": check_decoder, "ser": run_ser, "ser-precise": run_ser_precise, "track": run_track, "track-snr": run_track_snr,
              "sm": run_sm, "cordic": run_cordic, "budget": run_budget}
     for k, f in steps.items():
         if what in ("all", k):
