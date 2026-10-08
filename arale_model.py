@@ -12,7 +12,8 @@ Fixed-point Monte Carlo of the complete ARALE loop:
 Usage:
     python3 arale_model.py all            # run every experiment (several minutes)
     python3 arale_model.py decoder        # brute-force check of the E8 decoder
-    python3 arale_model.py ser            # SER vs SNR, with and without mismatch
+    python3 arale_model.py ser            # SER vs SNR, with and without mismatch (20k trials/cell)
+    python3 arale_model.py ser-precise    # the 8 and 9 dB rows at 100k trials with standard errors
     python3 arale_model.py track          # tracker floor, drift recovery, capture range
     python3 arale_model.py sm             # Sherman-Morrison vs QR error growth in 16/20-bit arithmetic
     python3 arale_model.py cordic         # CORDIC rotation error
@@ -109,9 +110,20 @@ def ser(snr_db, delta_norm=0.0, trials=20000):
 
 
 def run_ser():
-    print("SNR/dim  exact    |D|=0.05  |D|=0.10  |D|=0.20")
+    print("SNR/dim  exact    |D|=0.05  |D|=0.10  |D|=0.20   (20,000 trials per cell)")
     for snr in (6, 7, 8, 9, 10):
         print(f"{snr:5d}   {ser(snr):.4f}   {ser(snr, .05):.4f}    {ser(snr, .10):.4f}    {ser(snr, .20):.4f}")
+
+
+def run_ser_precise(trials=100000):
+    """Same experiment at 8 and 9 dB with 100,000 trials and the binomial standard error per cell."""
+    print(f"SNR/dim  exact / |D|=0.05 / 0.10 / 0.20  ({trials:,} trials per cell, +/- one standard error)")
+    for snr in (8, 9):
+        cells = []
+        for d in (0, .05, .10, .20):
+            p = ser(snr, d, trials=trials); s = np.sqrt(p * (1 - p) / trials)
+            cells.append(f"{p:.4f}+/-{s:.4f}")
+        print(f"{snr:5d}   " + "   ".join(cells))
 
 
 # --------------------------------------------------------------------------- tracking
@@ -248,7 +260,8 @@ def run_budget():
 
 if __name__ == "__main__":
     what = sys.argv[1] if len(sys.argv) > 1 else "all"
-    steps = {"decoder": check_decoder, "ser": run_ser, "track": run_track, "sm": run_sm, "cordic": run_cordic, "budget": run_budget}
+    steps = {"decoder": check_decoder, "ser": run_ser, "ser-precise": run_ser_precise, "track": run_track,
+             "sm": run_sm, "cordic": run_cordic, "budget": run_budget}
     for k, f in steps.items():
         if what in ("all", k):
             print(f"\n=== {k} ===")
